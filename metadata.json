@@ -2,5 +2,7 @@
   "name": "nostalgia",
   "description": "Studio generator prompt Suno AI, lirik puitis, dan video visualizer khusus lagu Pop Nostalgia era 80-an dan 90-an (Pop Balada, Slow Rock, City Pop, Retro Synth-Pop, dan Pop Melankolis).",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

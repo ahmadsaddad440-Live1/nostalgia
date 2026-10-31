@@ -4,7 +4,7 @@ import PromptOutput from './components/PromptOutput';
 import RetroCassettePreview from './components/RetroCassettePreview';
 import { PromptConfig, GeneratedContent } from './types';
 import { generateStylePrompt, generateLyrics, generateMusicVideo } from './services/geminiService';
-import { Radio, Disc, Sparkles, Key, Music, Heart, Flame } from 'lucide-react';
+import { Radio, Disc } from 'lucide-react';
 
 const App: React.FC = () => {
   const [generatedData, setGeneratedData] = useState<GeneratedContent>({
@@ -14,15 +14,6 @@ const App: React.FC = () => {
   const [statusMsg, setStatusMsg] = useState('');
 
   const handleGenerate = async (config: PromptConfig) => {
-    if (config.generateVideo) {
-      // @ts-ignore
-      const hasKey = await window.aistudio?.hasSelectedApiKey?.();
-      if (!hasKey && (window as any).aistudio?.openSelectKey) {
-        // @ts-ignore
-        await window.aistudio.openSelectKey();
-      }
-    }
-
     setIsLoading(true);
     setStatusMsg('Meracik komposisi instrumen analog 80 & 90-an...');
     
@@ -32,7 +23,16 @@ const App: React.FC = () => {
       let lyrics = '';
       if (config.generateLyrics) {
         setStatusMsg('Menulis lirik puitis era kaset pita...');
-        lyrics = await generateLyrics(config);
+        lyrics = await generateLyrics(config, (streamedLyrics) => {
+          setGeneratedData(prev => ({
+            ...prev,
+            prompt: styleResult.prompt,
+            songTitle: styleResult.songTitle,
+            sunoTags: styleResult.sunoTags,
+            productionNotes: styleResult.productionNotes,
+            lyrics: streamedLyrics
+          }));
+        });
       }
 
       setGeneratedData({
@@ -51,13 +51,7 @@ const App: React.FC = () => {
 
     } catch (error: any) {
       console.error("Failed to generate:", error);
-      if (error.message?.includes("Requested entity was not found")) {
-        alert("API Key error. Membuka pemilihan kunci AI Studio...");
-        // @ts-ignore
-        await window.aistudio?.openSelectKey?.();
-      } else {
-        alert("Terjadi kendala saat meracik musik. Silakan coba kembali.");
-      }
+      alert(error.message || "Terjadi kendala saat meracik musik. Silakan coba kembali.");
     } finally {
       setIsLoading(false);
       setStatusMsg('');
